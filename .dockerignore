@@ -1,0 +1,12 @@
+node_modules
+.output
+.nitro
+.tanstack
+.git
+.lovable
+.env
+.env.*
+!.env.example
+*.log
+Dockerfile
+docker-compose.yml

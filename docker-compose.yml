@@ -1,0 +1,24 @@
+services:
+  app:
+    build: .
+    image: sariel:latest
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    # Unset keys fall back to sample mode; see .env.example.
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+
+  # One-off: creates the ElevenLabs agent and prints its ID.
+  #   docker compose run --rm elevenlabs-setup
+  elevenlabs-setup:
+    image: node:22-slim
+    profiles: ["setup"]
+    working_dir: /scripts
+    volumes:
+      - ./scripts:/scripts:ro
+    env_file:
+      - path: .env
+        required: false
+    command: ["node", "setup-elevenlabs-agent.mjs"]

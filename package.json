@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "elevenlabs:setup": "node --env-file-if-exists=.env scripts/setup-elevenlabs-agent.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1"

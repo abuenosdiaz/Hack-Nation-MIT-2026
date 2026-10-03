@@ -10,8 +10,9 @@
 <!-- LOVABLE:END -->
 
 ## Project rules
-- Editable content (lessons, onboarding, professionals, feedback) lives in src/config/ — keeps curriculum editable without touching UI.
-- Journey state is a single React context persisted to sessionStorage (src/lib/journey.tsx) — no accounts in this demo.
-- AI/voice integration points live in src/lib/integrations.functions.ts; keys stay server-side and the UI stays in labeled demo mode until connected.
-- Lovable AI requests use server-only helpers through integration server functions; client screens never import gateway credentials or prompts.
-- The learning flow separates reading, the question assignment, and practice introduction into journey substates so only one task occupies the main surface.
+- MVP flow: onboarding → first lesson → preparation → ElevenLabs voice role-play → reflection. One step component per stage in src/components/steps/.
+- Editable content (career areas, professionals, lessons, role-play timing) lives in src/config/ — keeps curriculum editable without touching UI.
+- Pure, unit-tested logic lives in src/domain/; journey state and step gating live in src/journey/ (sessionStorage, no accounts).
+- Server-only code (env, LLM client, prompts, ElevenLabs token minting) lives in src/server/*.server.ts; the UI calls typed server functions in src/api/. Keys and prompts never reach the browser.
+- Without LLM/ElevenLabs keys every step falls back to a clearly labeled sample mode.
+- The ElevenLabs SDK is browser-only; keep it behind the lazy import in RolePlayStep.
