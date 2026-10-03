@@ -3,15 +3,11 @@
 // The app sends each professional's persona as a per-session override, so the
 // agent only needs a neutral default prompt plus permission to be overridden.
 //
-// Usage: ELEVENLABS_API_KEY=... node scripts/setup-elevenlabs-agent.mjs
+// Usage: npm run elevenlabs:setup   (or: docker compose run --rm elevenlabs-setup)
 
-const apiKey = process.env.ELEVENLABS_API_KEY;
-const baseUrl = process.env.ELEVENLABS_API_BASE_URL ?? "https://api.elevenlabs.io";
+import { elevenlabsFetch, explainFailure, requireApiKey } from "./lib/elevenlabs.mjs";
 
-if (!apiKey) {
-  console.error("Set ELEVENLABS_API_KEY (in .env or the environment) first.");
-  process.exit(1);
-}
+const apiKey = requireApiKey();
 
 const agent = {
   name: "Sariel — practice professional",
@@ -38,16 +34,12 @@ const agent = {
   },
 };
 
-const response = await fetch(new URL("/v1/convai/agents/create", baseUrl), {
-  method: "POST",
-  headers: { "xi-api-key": apiKey, "Content-Type": "application/json" },
-  body: JSON.stringify(agent),
-});
+const result = await elevenlabsFetch("/v1/convai/agents/create", { apiKey, method: "POST", body: agent });
 
-if (!response.ok) {
-  console.error(`ElevenLabs returned ${response.status}:`, await response.text());
+if (!result.ok) {
+  console.error(`Couldn't create the agent: ${explainFailure(result.status, result.json)}\n${result.text}`);
   process.exit(1);
 }
 
-const { agent_id: agentId } = await response.json();
+const agentId = result.json.agent_id;
 console.log(`Created agent ${agentId}\n\nAdd this to your .env:\nELEVENLABS_AGENT_ID=${agentId}`);

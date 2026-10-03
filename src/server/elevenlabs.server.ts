@@ -4,9 +4,24 @@ export type VoiceCredential =
   | { connectionType: "webrtc"; conversationToken: string }
   | { connectionType: "websocket"; signedUrl: string };
 
+type ElevenLabsErrorBody = { detail?: { status?: string; message?: string } | string };
+
+/** Maps ElevenLabs auth failures (invalid key, scope, IP allowlist, credit quota) to actionable messages. */
+export function describeElevenLabsError(status: number, body: ElevenLabsErrorBody | null): string {
+  const code = typeof body?.detail === "object" ? body.detail.status : undefined;
+  if (code === "quota_exceeded") return "The ElevenLabs API key has run out of credits.";
+  if (status === 401) return "ElevenLabs rejected the API key. Check ELEVENLABS_API_KEY.";
+  if (status === 403) {
+    return "The ElevenLabs API key isn't allowed to start agent conversations. Check the key's scopes (ElevenLabs Agents access) and IP allowlist.";
+  }
+  if (status === 404) return "ElevenLabs couldn't find the agent. Check ELEVENLABS_AGENT_ID.";
+  if (status === 429) return "ElevenLabs is rate limiting requests. Please try again in a moment.";
+  return "Couldn't start the voice conversation. Please try again.";
+}
+
 /**
- * Mints a short-lived credential for the configured ElevenLabs agent so the
- * API key never reaches the browser.
+ * Exchanges the server-side API key for a single-use conversation credential,
+ * so the key itself never reaches the browser.
  */
 export async function createVoiceCredential(): Promise<VoiceCredential> {
   const env = getServerEnv();
@@ -23,12 +38,9 @@ export async function createVoiceCredential(): Promise<VoiceCredential> {
 
   const response = await fetch(url, { headers: { "xi-api-key": env.ELEVENLABS_API_KEY } });
   if (!response.ok) {
-    console.error("[elevenlabs]", response.status, await response.text());
-    throw new Error(
-      response.status === 401
-        ? "ElevenLabs rejected the API key."
-        : "Couldn't start the voice conversation. Please try again.",
-    );
+    const raw = await response.text();
+    console.error("[elevenlabs]", response.status, raw);
+    throw new Error(describeElevenLabsError(response.status, safeJson(raw)));
   }
 
   const body = (await response.json()) as { token?: string; signed_url?: string };
@@ -36,4 +48,12 @@ export async function createVoiceCredential(): Promise<VoiceCredential> {
   if (!isWebRtc && body.signed_url)
     return { connectionType: "websocket", signedUrl: body.signed_url };
   throw new Error("ElevenLabs returned an unexpected response.");
+}
+
+function safeJson(raw: string): ElevenLabsErrorBody | null {
+  try {
+    return JSON.parse(raw) as ElevenLabsErrorBody;
+  } catch {
+    return null;
+  }
 }

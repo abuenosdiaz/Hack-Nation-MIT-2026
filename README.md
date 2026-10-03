@@ -35,6 +35,22 @@ full journey is always demoable.
 | `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL` | The coach (onboarding, lesson Q&A, feedback). Any OpenAI-compatible API. |
 | `APP_PORT` | Host port for docker compose (default `3000`). |
 
+### ElevenLabs authentication
+
+The API key is a secret and is only read on the server, where it's sent as the `xi-api-key` header. When a
+student starts the role-play, the server exchanges it for a **single-use conversation token** (WebRTC) or
+signed URL (WebSocket) for the configured agent, and only that short-lived credential reaches the browser.
+
+Recommended key restrictions (set when creating the key in the ElevenLabs dashboard):
+
+- **Scope:** limit the key to ElevenLabs Agents access (needed for agent creation and conversation tokens).
+- **Credit quota:** cap usage for the event or demo.
+- **IP allowlist:** if enabled, include the public IP of the machine running the container; other IPs get `403`.
+
+Check a key with `npm run elevenlabs:check` (or `docker compose run --rm elevenlabs-check`). It confirms
+the key authenticates and can start conversations with `ELEVENLABS_AGENT_ID`, and explains scope, IP
+allowlist, or quota failures. The app shows the same explanations if a call can't start.
+
 ### ElevenLabs agent
 
 One agent serves every professional. Each session sends that professional's persona prompt, first message,

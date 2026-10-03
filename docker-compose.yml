@@ -12,7 +12,7 @@ services:
 
   # One-off: creates the ElevenLabs agent and prints its ID.
   #   docker compose run --rm elevenlabs-setup
-  elevenlabs-setup:
+  elevenlabs-setup: &elevenlabs-script
     image: node:22-slim
     profiles: ["setup"]
     working_dir: /scripts
@@ -22,3 +22,9 @@ services:
       - path: .env
         required: false
     command: ["node", "setup-elevenlabs-agent.mjs"]
+
+  # One-off: verifies the API key and that it can start conversations with the agent.
+  #   docker compose run --rm elevenlabs-check
+  elevenlabs-check:
+    <<: *elevenlabs-script
+    command: ["node", "check-elevenlabs.mjs"]

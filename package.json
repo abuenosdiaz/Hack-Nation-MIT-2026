@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "elevenlabs:setup": "node --env-file-if-exists=.env scripts/setup-elevenlabs-agent.mjs"
+    "elevenlabs:setup": "node --env-file-if-exists=.env scripts/setup-elevenlabs-agent.mjs",
+    "elevenlabs:check": "node --env-file-if-exists=.env scripts/check-elevenlabs.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1"
