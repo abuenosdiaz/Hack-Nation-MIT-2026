@@ -186,6 +186,22 @@
   .chat-caption, .chat-status, .message-label, .mic-note { font-size: 15px; }
   .chat-compose { border-top: 2px dashed var(--border); }
   .chat-transcript [data-role="user"] { border-radius: var(--sketch-radius-md); }
+  .question-block { margin-top: 8px; padding-bottom: 18px; border-bottom: 2px dashed var(--secondary); }
+  .question-actions { margin-top: 10px; }
+  .notes-card { border: 2px dashed var(--border); border-radius: var(--sketch-radius-md); background: var(--nav-active); padding: 14px 20px; margin-bottom: 24px; }
+  .notes-card ol { margin: 8px 0 0; padding-left: 22px; list-style: decimal; display: grid; gap: 6px; font-size: 18px; }
+  .call-panel { border: 2px solid var(--border); border-radius: var(--sketch-radius-md); box-shadow: 5px 5px 0 var(--secondary); background: var(--card); padding: 36px 32px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .call-orb { width: 120px; height: 120px; display: grid; place-items: center; border: 3px solid var(--border); border-radius: var(--sketch-radius); background: var(--nav-active); font-family: var(--font-display); font-size: 36px; font-weight: 700; transition: transform .2s; }
+  .call-orb.is-speaking { animation: call-pulse 1.1s ease-in-out infinite; background: var(--secondary); }
+  .call-status { margin: 18px 0 6px; font-size: 20px; }
+  .call-timer { width: 100%; max-width: 420px; margin-top: 12px; }
+  .call-timer-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .call-timer-row strong { font-family: var(--font-display); font-size: 28px; }
+  .call-timer .progress-track { margin: 8px 0 0; }
+  .call-actions { margin-top: 24px; }
+  .call-transcript { width: 100%; margin-top: 24px; text-align: left; font-size: 16px; }
+  .call-transcript summary { cursor: pointer; color: var(--muted-foreground); }
+  .call-transcript ul { display: grid; gap: 8px; margin-top: 10px; max-height: 220px; overflow-y: auto; }
   @media(max-width: 900px) {
     .navigation { position: fixed; transform: translateX(-100%); transition: transform .25s ease; }
     .navigation.nav-open { transform: translateX(0); }
@@ -216,5 +232,6 @@
     .lesson-copy { font-size: 19px; }
   }
 }
+@keyframes call-pulse { 0%, 100% { transform: scale(1) rotate(-3deg); } 50% { transform: scale(1.07) rotate(2deg); } }
 @keyframes fade-up { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
 @media(prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }

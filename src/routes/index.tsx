@@ -1,35 +1,160 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { ArrowRight, Check, Menu, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { JourneyProvider, useJourney } from "@/lib/journey";
-import { Welcome, Onboarding, Learn, Practice, Reflect } from "@/components/Screens";
+import { LessonStep } from "@/components/steps/LessonStep";
+import { OnboardingStep } from "@/components/steps/OnboardingStep";
+import { PrepareStep } from "@/components/steps/PrepareStep";
+import { ReflectStep } from "@/components/steps/ReflectStep";
+import { RolePlayStep } from "@/components/steps/RolePlayStep";
+import { WelcomeStep } from "@/components/steps/WelcomeStep";
 import { appName, stages } from "@/config/content";
+import { JourneyProvider, useJourney } from "@/journey/JourneyProvider";
+import { canVisit, STEPS, type StepId } from "@/journey/state";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ meta: [
-    { title: "Sariel — A place to explore your future" },
-    { name: "description", content: "Get to know your interests, learn to ask better career questions, and practice a conversation with Sariel." },
-    { property: "og:title", content: "Sariel — A place to explore your future" },
-    { property: "og:description", content: "A calm space to explore careers through conversation, learning, and practice." },
-    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" },
-  ] }),
-  component: () => <JourneyProvider><App /></JourneyProvider>,
+  head: () => ({
+    meta: [
+      { title: "Sariel — Practice your first career conversation" },
+      {
+        name: "description",
+        content:
+          "Share your interests, learn how networking works, and practice a voice conversation with a fictional professional.",
+      },
+      { property: "og:title", content: "Sariel — Practice your first career conversation" },
+      { property: "og:type", content: "website" },
+    ],
+  }),
+  component: () => (
+    <JourneyProvider>
+      <App />
+    </JourneyProvider>
+  ),
 });
 
+const STEP_COMPONENTS: Record<StepId, ComponentType> = {
+  welcome: WelcomeStep,
+  onboarding: OnboardingStep,
+  lesson: LessonStep,
+  prepare: PrepareStep,
+  roleplay: RolePlayStep,
+  reflect: ReflectStep,
+};
+
+/** Navigable steps, paired with their sidebar labels (welcome isn't listed). */
+const NAV_STEPS = STEPS.slice(1).map((id, i) => ({ id, label: stages[i] ?? id }));
+
 function App() {
-  const { s, set, reset, loadDemo } = useJourney();
-  const [menu, setMenu] = useState(false);
-  const Screen = [Welcome, Onboarding, Learn, Practice, Reflect][s.step] ?? Welcome;
-   const canGo = (n: number) => n === 1 || n === 2 && !!s.profile || n === 3 && s.lessonComplete || n === 4 && s.practicePhase === "conversation" && s.practice.length > 0;
-  return <div className="app-layout">
-    <aside className={`navigation ${menu ? "nav-open" : ""}`}>
-      <div className="nav-top"><Button variant="ghost" className="brand" onClick={() => { set({ step: 0 }); setMenu(false); }} aria-label="Sariel home"><span className="brand-symbol" aria-hidden>S<span>.</span></span><span>{appName}</span></Button><Button variant="ghost" size="icon" className="nav-close" aria-label="Close menu" onClick={() => setMenu(false)}><X /></Button></div>
-      <div className="nav-middle"><p className="nav-caption">YOUR PATH</p><nav aria-label="Learning stages"><ol>{stages.map((name, i) => { const n = i + 1; const active = s.step === n; const completed = n < s.step; return <li key={name}><Button variant="ghost" className={`nav-item ${active ? "nav-active" : ""}`} disabled={!canGo(n)} aria-current={active ? "step" : undefined} onClick={() => { set({ step: n }); setMenu(false); }}><span className="nav-number">{completed ? <Check size={15} /> : `0${n}`}</span><span>{name}</span>{active && <span className="nav-active-mark" />}</Button></li>; })}</ol></nav></div>
-      <div className="nav-bottom"><div className="nav-divider" /><details className="demo-details"><summary>Presenter samples</summary><div>{(["Onboarding", "Question feedback", "Role-play"] as const).map((name, i) => <Button key={name} variant="ghost" onClick={() => { loadDemo((i + 1) as 1 | 2 | 3); setMenu(false); }}>Sample {i + 1} · {name}</Button>)}</div></details><Button variant="ghost" className="restart" onClick={() => { reset(); setMenu(false); }}><RotateCcw size={15} /> Start over</Button></div>
-    </aside>
-    {menu && <div className="mobile-backdrop" onClick={() => setMenu(false)} aria-hidden />}
-    <div className="workspace"><header className="workspace-header"><div className="mobile-header"><Button size="icon" variant="ghost" aria-label="Open menu" onClick={() => setMenu(true)}><Menu /></Button><strong>{appName}</strong></div><span className="current-location">{s.step === 0 ? "Start" : stages[s.step - 1]}</span><span className="session-badge"><span /> {s.demo ? "Sample session" : "Your session"}</span></header>
-      <main className="workspace-main"><Screen /></main><footer className="workspace-footer"><span>{appName}</span><span>Explore at your own pace <ArrowRight size={13} /></span></footer></div>
-  </div>;
+  const { state, goTo, reset, loadPresenterSample } = useJourney();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const Screen = STEP_COMPONENTS[state.step];
+  const currentIndex = STEPS.indexOf(state.step);
+  const currentLabel = NAV_STEPS.find((s) => s.id === state.step)?.label ?? "Start";
+
+  const navigate = (action: () => void) => {
+    action();
+    setMenuOpen(false);
+  };
+
+  return (
+    <div className="app-layout">
+      <aside className={`navigation ${menuOpen ? "nav-open" : ""}`}>
+        <div className="nav-top">
+          <Button
+            variant="ghost"
+            className="brand"
+            onClick={() => navigate(() => goTo("welcome"))}
+            aria-label="Sariel home"
+          >
+            <span className="brand-symbol" aria-hidden>
+              S<span>.</span>
+            </span>
+            <span>{appName}</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="nav-close"
+            aria-label="Close menu"
+            onClick={() => setMenuOpen(false)}
+          >
+            <X />
+          </Button>
+        </div>
+        <div className="nav-middle">
+          <p className="nav-caption">YOUR PATH</p>
+          <nav aria-label="Learning steps">
+            <ol>
+              {NAV_STEPS.map(({ id, label }, i) => {
+                const active = state.step === id;
+                const completed = STEPS.indexOf(id) < currentIndex;
+                return (
+                  <li key={id}>
+                    <Button
+                      variant="ghost"
+                      className={`nav-item ${active ? "nav-active" : ""}`}
+                      disabled={!canVisit(state, id)}
+                      aria-current={active ? "step" : undefined}
+                      onClick={() => navigate(() => goTo(id))}
+                    >
+                      <span className="nav-number">
+                        {completed ? <Check size={15} /> : `0${i + 1}`}
+                      </span>
+                      <span>{label}</span>
+                      {active && <span className="nav-active-mark" />}
+                    </Button>
+                  </li>
+                );
+              })}
+            </ol>
+          </nav>
+        </div>
+        <div className="nav-bottom">
+          <div className="nav-divider" />
+          <details className="demo-details">
+            <summary>Presenter tools</summary>
+            <div>
+              <Button variant="ghost" onClick={() => navigate(loadPresenterSample)}>
+                Jump to reflection with a sample conversation
+              </Button>
+            </div>
+          </details>
+          <Button variant="ghost" className="restart" onClick={() => navigate(reset)}>
+            <RotateCcw size={15} /> Start over
+          </Button>
+        </div>
+      </aside>
+      {menuOpen && (
+        <div className="mobile-backdrop" onClick={() => setMenuOpen(false)} aria-hidden />
+      )}
+      <div className="workspace">
+        <header className="workspace-header">
+          <div className="mobile-header">
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="Open menu"
+              onClick={() => setMenuOpen(true)}
+            >
+              <Menu />
+            </Button>
+            <strong>{appName}</strong>
+          </div>
+          <span className="current-location">{currentLabel}</span>
+          <span className="session-badge">
+            <span /> {state.sampleMode ? "Sample session" : "Your session"}
+          </span>
+        </header>
+        <main className="workspace-main">
+          <Screen />
+        </main>
+        <footer className="workspace-footer">
+          <span>{appName}</span>
+          <span>
+            Explore at your own pace <ArrowRight size={13} />
+          </span>
+        </footer>
+      </div>
+    </div>
+  );
 }
