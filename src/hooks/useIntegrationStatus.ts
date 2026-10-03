@@ -1,21 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { getIntegrationStatus, type IntegrationStatus } from "@/api/status.functions";
+import { getRouteApi } from "@tanstack/react-router";
+import type { IntegrationStatus } from "@/api/status.functions";
 
-const OFFLINE: IntegrationStatus = { llm: false, voice: false };
+const journeyRoute = getRouteApi("/");
 
-/** Which live integrations are configured on the server. Defaults to sample mode while loading. */
+/** Which live integrations are configured, loaded with the page so it's correct on first render. */
 export function useIntegrationStatus(): IntegrationStatus {
-  const fetchStatus = useServerFn(getIntegrationStatus);
-  const { data } = useQuery({
-    queryKey: ["integration-status"],
-    queryFn: () => fetchStatus(),
-    staleTime: Infinity,
-  });
-  return data ?? OFFLINE;
+  return journeyRoute.useLoaderData();
 }
 
 /** Live AI is used only when configured and the presenter sample isn't loaded. */
 export function useLiveAi(sampleMode: boolean): boolean {
-  return useIntegrationStatus().llm && !sampleMode;
+  return useIntegrationStatus().coach && !sampleMode;
 }

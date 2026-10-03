@@ -98,4 +98,4 @@ export const questionCriteria = {
 };
 
 export const sampleCoachReply =
-  "Good question! (Sample reply — the live coach isn't connected.) Once an LLM key is configured, I'll answer based on your profile and this lesson.";
+  "Good question! (Sample reply — the live coach isn't connected.) Once the AI coach is configured, I'll answer based on your profile and this lesson.";

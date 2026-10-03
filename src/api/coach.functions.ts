@@ -3,7 +3,7 @@ import { z } from "zod";
 import { careerAreas, getCareerArea } from "@/config/careerAreas";
 import { getProfessional } from "@/config/professionals";
 import type { ChatMessage } from "@/domain/types";
-import { generateCoachObject, generateCoachText } from "@/server/llm.server";
+import { generateCoachObject, generateCoachText } from "@/server/coach.server";
 import {
   conversationFeedbackPrompt,
   lessonCoachPrompt,

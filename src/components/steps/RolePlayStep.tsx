@@ -66,7 +66,7 @@ export function RolePlayStep() {
           professional={professional}
           careerAreaId={careerAreaId}
           onComplete={complete}
-          live={status.llm && !state.sampleMode}
+          live={status.coach && !state.sampleMode}
         />
       )}
 

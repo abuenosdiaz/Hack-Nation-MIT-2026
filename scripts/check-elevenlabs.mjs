@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 // Verifies the ElevenLabs configuration the app depends on:
 //   1. the API key authenticates
-//   2. the key can mint single-use conversation tokens for ELEVENLABS_AGENT_ID
+//   2. the key can start voice conversations with ELEVENLABS_AGENT_ID (role-play)
+//   3. the key can start text conversations with ELEVENLABS_COACH_AGENT_ID (coach)
 //
 // Usage: npm run elevenlabs:check   (or: docker compose run --rm elevenlabs-check)
 
 import { elevenlabsFetch, explainFailure, requireApiKey } from "./lib/elevenlabs.mjs";
 
 const apiKey = requireApiKey();
-const agentId = process.env.ELEVENLABS_AGENT_ID;
 let failed = false;
 
 const report = (label, result) => {
@@ -19,14 +19,18 @@ const report = (label, result) => {
   }
 };
 
-report("API key authenticates", await elevenlabsFetch("/v1/models", { apiKey }));
+const checkAgent = async (envVar, purpose, path) => {
+  const agentId = process.env[envVar];
+  if (!agentId) {
+    failed = true;
+    console.error(`✗ ${envVar} is not set (${purpose}). Create it with \`npm run elevenlabs:setup\`.`);
+    return;
+  }
+  report(`${purpose}: agent ${agentId}`, await elevenlabsFetch(`${path}?agent_id=${encodeURIComponent(agentId)}`, { apiKey }));
+};
 
-if (agentId) {
-  const tokenPath = `/v1/convai/conversation/token?agent_id=${encodeURIComponent(agentId)}`;
-  report(`Can start conversations with agent ${agentId}`, await elevenlabsFetch(tokenPath, { apiKey }));
-} else {
-  failed = true;
-  console.error("✗ ELEVENLABS_AGENT_ID is not set. Create one with `npm run elevenlabs:setup`.");
-}
+report("API key authenticates", await elevenlabsFetch("/v1/models", { apiKey }));
+await checkAgent("ELEVENLABS_AGENT_ID", "Voice role-play", "/v1/convai/conversation/token");
+await checkAgent("ELEVENLABS_COACH_AGENT_ID", "Text coach", "/v1/convai/conversation/get-signed-url");
 
 process.exit(failed ? 1 : 0);

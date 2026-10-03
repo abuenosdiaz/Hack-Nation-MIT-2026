@@ -3,7 +3,7 @@ import { z } from "zod";
 import { getCareerArea } from "@/config/careerAreas";
 import { getProfessional } from "@/config/professionals";
 import { createVoiceCredential } from "@/server/elevenlabs.server";
-import { generateCoachText } from "@/server/llm.server";
+import { generateCoachText } from "@/server/coach.server";
 import { professionalPersonaPrompt } from "@/server/prompts.server";
 import { idSchema, transcriptSchema } from "./schemas";
 

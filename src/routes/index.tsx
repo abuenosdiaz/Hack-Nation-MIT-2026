@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type ComponentType } from "react";
 import { ArrowRight, Check, Menu, RotateCcw, X } from "lucide-react";
+import { getIntegrationStatus } from "@/api/status.functions";
 import { Button } from "@/components/ui/button";
 import { LessonStep } from "@/components/steps/LessonStep";
 import { OnboardingStep } from "@/components/steps/OnboardingStep";
@@ -25,6 +26,8 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
     ],
   }),
+  loader: () => getIntegrationStatus(),
+  staleTime: Infinity,
   component: () => (
     <JourneyProvider>
       <App />

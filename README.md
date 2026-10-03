@@ -2,7 +2,8 @@
 
 Sariel helps high-school students learn networking by doing it: they talk about themselves, take a short
 lesson, prepare questions, then have a **live voice conversation with a fictional professional powered by
-ElevenLabs**, followed by coach feedback grounded in what they actually said.
+ElevenLabs**, followed by coach feedback grounded in what they actually said. The Sariel coach also runs on
+ElevenLabs (a text-only agent), so one ElevenLabs API key powers the whole experience.
 
 ## MVP workflow
 
@@ -18,7 +19,7 @@ ElevenLabs**, followed by coach feedback grounded in what they actually said.
 
 ```sh
 cp .env.example .env              # add your keys (all optional — see below)
-docker compose run --rm elevenlabs-setup   # one-time: creates the ElevenLabs agent, prints ELEVENLABS_AGENT_ID
+docker compose run --rm elevenlabs-setup   # one-time: creates the voice + coach agents, prints their IDs
 docker compose up --build         # http://localhost:3000
 ```
 
@@ -30,9 +31,11 @@ full journey is always demoable.
 | Variable | Purpose |
 | --- | --- |
 | `ELEVENLABS_API_KEY` | Server-side key used to mint short-lived conversation tokens. Never sent to the browser. |
-| `ELEVENLABS_AGENT_ID` | The Conversational AI agent used for role-play. |
+| `ELEVENLABS_AGENT_ID` | Voice agent that plays the fictional professional in the role-play. |
+| `ELEVENLABS_COACH_AGENT_ID` | Text-only agent that powers the coach (onboarding, lesson Q&A, question and conversation feedback, reflection chat). |
 | `ELEVENLABS_CONNECTION_TYPE` | `webrtc` (default, best audio) or `websocket`. |
-| `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL` | The coach (onboarding, lesson Q&A, feedback). Any OpenAI-compatible API. |
+| `COACH_PROVIDER` | `auto` (default: ElevenLabs if the coach agent is set, else OpenAI-compatible), `elevenlabs`, or `openai`. |
+| `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL` | Optional alternative coach backend: any OpenAI-compatible API. |
 | `APP_PORT` | Host port for docker compose (default `3000`). |
 
 ### ElevenLabs authentication

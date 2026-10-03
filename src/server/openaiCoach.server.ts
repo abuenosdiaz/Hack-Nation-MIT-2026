@@ -22,7 +22,7 @@ function toFriendlyError(error: unknown): Error {
   return new Error("The AI coach couldn't respond right now. Please try again.");
 }
 
-export async function generateCoachText(system: string, messages: ModelMessage[]): Promise<string> {
+export async function openaiText(system: string, messages: ModelMessage[]): Promise<string> {
   try {
     const { text } = await generateText({ model: getModel(), system, messages });
     if (!text.trim()) throw new Error("Empty response");
@@ -32,7 +32,7 @@ export async function generateCoachText(system: string, messages: ModelMessage[]
   }
 }
 
-export async function generateCoachObject<T>(
+export async function openaiObject<T>(
   schema: z.ZodType<T>,
   system: string,
   prompt: string,
