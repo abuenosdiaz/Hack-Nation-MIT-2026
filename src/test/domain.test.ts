@@ -29,6 +29,12 @@ describe("question check", () => {
     expect(checkQuestion("Do you like your job?", "Nurse").improve).toMatch(/yes or no/);
   });
 
+  it("keeps acronyms capitalized in suggested revisions", () => {
+    expect(checkQuestion("Do you like your job?", "UX Designer").revision).toBe(
+      "What do you enjoy most about being a UX designer, and why?",
+    );
+  });
+
   it("keeps strong questions unchanged", () => {
     const q = "What was the hardest part of starting your career?";
     expect(checkQuestion(q, "Nurse").revision).toBe(q);

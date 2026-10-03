@@ -10,7 +10,10 @@ export function checkQuestion(raw: string, role: string): QuestionFeedback {
   const closed = c.closedStarters.some((s) => lower.startsWith(s));
   const personal = /\b(you|your)\b/.test(lower);
   const revealing = c.revealingWords.some((w) => lower.includes(w));
-  const roleName = role.toLowerCase();
+  const roleName = role
+    .split(" ")
+    .map((word) => (/^[A-Z]{2,}$/.test(word) ? word : word.toLowerCase()))
+    .join(" ");
 
   const works = open
     ? "It's open-ended, so it invites a real story instead of a one-word answer."
