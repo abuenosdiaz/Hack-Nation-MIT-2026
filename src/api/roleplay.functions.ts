@@ -18,7 +18,7 @@ export const startVoiceRolePlay = createServerFn({ method: "POST" })
       persona: {
         prompt: professionalPersonaPrompt(pro, getCareerArea(data.careerAreaId).label),
         firstMessage: pro.firstMessage,
-        voiceId: pro.voiceId ?? null,
+        voiceId: pro.voiceId,
       },
     };
   });

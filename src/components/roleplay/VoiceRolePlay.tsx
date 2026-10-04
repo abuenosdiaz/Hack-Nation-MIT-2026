@@ -85,7 +85,7 @@ function VoiceSession({ professional, careerAreaId, onComplete }: RolePlayModePr
         ...credential,
         overrides: {
           agent: { prompt: { prompt: persona.prompt }, firstMessage: persona.firstMessage },
-          ...(persona.voiceId ? { tts: { voiceId: persona.voiceId } } : {}),
+          tts: { voiceId: persona.voiceId },
         },
       });
     } catch (e) {

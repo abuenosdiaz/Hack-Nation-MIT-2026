@@ -50,7 +50,7 @@ export async function createVoiceCredential(): Promise<VoiceCredential> {
   throw new Error("ElevenLabs returned an unexpected response.");
 }
 
-function safeJson(raw: string): ElevenLabsErrorBody | null {
+export function safeJson(raw: string): ElevenLabsErrorBody | null {
   try {
     return JSON.parse(raw) as ElevenLabsErrorBody;
   } catch {

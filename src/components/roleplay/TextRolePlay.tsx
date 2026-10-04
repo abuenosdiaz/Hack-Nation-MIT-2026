@@ -55,6 +55,7 @@ export function TextRolePlay({
         title={professional.name}
         caption={`${professional.role} · fictional practice conversation`}
         proName={professional.name}
+        proSpeaker={professional.id}
         messages={messages}
         onSend={send}
         waiting={pending}

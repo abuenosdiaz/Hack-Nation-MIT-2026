@@ -19,6 +19,8 @@ export type JourneyState = {
   step: StepId;
   /** True when presenter sample data was loaded instead of a real session. */
   sampleMode: boolean;
+  /** Read coach and professional replies aloud with ElevenLabs. */
+  voiceOver: boolean;
   onboardingChat: ChatMessage[];
   profile: StudentProfile | null;
   suggestion: CareerSuggestion | null;
@@ -40,6 +42,7 @@ const emptyQuestion = (): PreparedQuestion => ({ text: "", feedback: null });
 export const initialJourneyState: JourneyState = {
   step: "welcome",
   sampleMode: false,
+  voiceOver: true,
   onboardingChat: [],
   profile: null,
   suggestion: null,

@@ -12,8 +12,8 @@ export type Professional = {
   askAbout: string[];
   /** Spoken first line of the role-play. */
   firstMessage: string;
-  /** Optional ElevenLabs voice for this persona; falls back to the agent's default voice. */
-  voiceId?: string;
+  /** ElevenLabs voice used for the role-play and voice-over (see config/voices.ts). */
+  voiceId: string;
   /** Scripted replies used in text fallback mode, in order. */
   fallbackReplies: string[];
   /** Labeled sample transcript for presenter demos. */
@@ -23,6 +23,7 @@ export type Professional = {
 export const professionals: Professional[] = [
   {
     id: "dana-okafor",
+    voiceId: "cgSgspJ2msm6clMCkdW9", // Jessica
     careerAreaId: "health",
     name: "Dana Okafor",
     role: "Physical Therapist",
@@ -77,6 +78,7 @@ export const professionals: Professional[] = [
   },
   {
     id: "leo-tran",
+    voiceId: "TX3LPaxmHKxFdv7VOQHJ", // Liam
     careerAreaId: "design",
     name: "Leo Tran",
     role: "UX Designer",
@@ -120,6 +122,7 @@ export const professionals: Professional[] = [
   },
   {
     id: "priya-shah",
+    voiceId: "Xb7hH8MSUJpSbSDYk0k2", // Alice
     careerAreaId: "environment",
     name: "Priya Shah",
     role: "Environmental Engineer",
@@ -163,6 +166,7 @@ export const professionals: Professional[] = [
   },
   {
     id: "marcus-bell",
+    voiceId: "nPczCjzI2devNBz1zQrb", // Brian
     careerAreaId: "business",
     name: "Marcus Bell",
     role: "Small Business Owner",

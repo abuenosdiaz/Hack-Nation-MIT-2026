@@ -15,4 +15,5 @@
 - Pure, unit-tested logic lives in src/domain/; journey state and step gating live in src/journey/ (sessionStorage, no accounts).
 - Server-only code (env, LLM client, prompts, ElevenLabs token minting) lives in src/server/*.server.ts; the UI calls typed server functions in src/api/. Keys and prompts never reach the browser.
 - The coach runs through src/server/coach.server.ts, which picks the ElevenLabs text-only coach agent or an OpenAI-compatible API (COACH_PROVIDER). Without keys every step falls back to a clearly labeled sample mode.
-- The ElevenLabs SDK is browser-only; keep it behind the lazy import in RolePlayStep.
+- The ElevenLabs SDK is browser-only; keep it behind the lazy imports in RolePlayStep and ChatPanel (MicButton).
+- Chat voice: MicButton streams mic audio to Scribe with a token from src/api/speech.functions.ts; voice-over audio comes from the /api/tts route (src/routes/api/tts.ts), which maps speakers to voices via src/config/voices.ts.

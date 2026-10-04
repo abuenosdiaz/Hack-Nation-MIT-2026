@@ -46,26 +46,39 @@ signed URL (WebSocket) for the configured agent, and only that short-lived crede
 
 Recommended key restrictions (set when creating the key in the ElevenLabs dashboard):
 
-- **Scope:** limit the key to ElevenLabs Agents access (needed for agent creation and conversation tokens).
+- **Scope:** allow ElevenLabs Agents (agent creation and conversation tokens), Speech to Text (mic button),
+  and Text to Speech (voice-over).
 - **Credit quota:** cap usage for the event or demo.
 - **IP allowlist:** if enabled, include the public IP of the machine running the container; other IPs get `403`.
 
 Check a key with `npm run elevenlabs:check` (or `docker compose run --rm elevenlabs-check`). It confirms
-the key authenticates and can start conversations with `ELEVENLABS_AGENT_ID`, and explains scope, IP
+the key authenticates, can start conversations with both agents, and can issue speech-to-text tokens, and explains scope, IP
 allowlist, or quota failures. The app shows the same explanations if a call can't start.
 
 ### ElevenLabs agent
 
 One agent serves every professional. Each session sends that professional's persona prompt, first message,
-and (optionally) voice as **overrides**, so the agent must allow them. `scripts/setup-elevenlabs-agent.mjs`
+and voice as **overrides**, so the agent must allow them. `scripts/setup-elevenlabs-agent.mjs`
 creates an agent with:
 
 - overrides enabled for `agent.prompt.prompt`, `agent.first_message`, and `tts.voice_id`
 - a 5-minute server-side max duration (the app ends calls at 4 minutes)
 
 Using an agent you created in the dashboard instead? Enable those three overrides under
-**Agent → Security → Overrides**. To give a professional a distinct voice, set `voiceId` in
+**Agent → Security → Overrides**. Each professional's voice is the `voiceId` in
 `src/config/professionals.ts`.
+
+### Voice in every chat
+
+Whenever `ELEVENLABS_API_KEY` is set, every chat (onboarding, lesson, text role-play, reflection) supports voice:
+
+- **Mic button:** the student taps the mic and speaks. Speech streams to ElevenLabs Scribe real-time
+  speech-to-text (`scribe_v2_realtime`) using a single-use token from the server, the live transcript fills the
+  input, and tapping stop sends it.
+- **Voice-over:** coach and professional replies appear as text and are read aloud with ElevenLabs
+  text-to-speech (`eleven_flash_v2_5`). The coach uses `COACH_VOICE_ID` in `src/config/voices.ts`; professionals
+  use their own voice. The speaker icon in the chat header turns voice-over off, and each reply has a replay button.
+  Audio comes from the same-origin `/api/tts` route, which only accepts known speakers, so the key stays server-side.
 
 ## Local development
 

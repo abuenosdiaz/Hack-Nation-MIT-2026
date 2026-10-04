@@ -3,6 +3,7 @@
 //   1. the API key authenticates
 //   2. the key can start voice conversations with ELEVENLABS_AGENT_ID (role-play)
 //   3. the key can start text conversations with ELEVENLABS_COACH_AGENT_ID (coach)
+//   4. the key can issue speech-to-text tokens (mic button)
 //
 // Usage: npm run elevenlabs:check   (or: docker compose run --rm elevenlabs-check)
 
@@ -32,5 +33,9 @@ const checkAgent = async (envVar, purpose, path) => {
 report("API key authenticates", await elevenlabsFetch("/v1/models", { apiKey }));
 await checkAgent("ELEVENLABS_AGENT_ID", "Voice role-play", "/v1/convai/conversation/token");
 await checkAgent("ELEVENLABS_COACH_AGENT_ID", "Text coach", "/v1/convai/conversation/get-signed-url");
+report(
+  "Speech-to-text token (mic button)",
+  await elevenlabsFetch("/v1/single-use-token/realtime_scribe", { apiKey, method: "POST" }),
+);
 
 process.exit(failed ? 1 : 0);
