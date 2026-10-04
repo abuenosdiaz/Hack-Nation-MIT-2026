@@ -17,7 +17,8 @@ export function TextRolePlay({
   careerAreaId,
   onComplete,
   live,
-}: RolePlayModeProps & { live: boolean }) {
+  voiceConfigured,
+}: RolePlayModeProps & { live: boolean; voiceConfigured: boolean }) {
   const [transcript, setTranscript] = useState<TranscriptTurn[]>([
     { speaker: "pro", text: professional.firstMessage },
   ]);
@@ -63,7 +64,11 @@ export function TextRolePlay({
       />
       <ErrorNote message={error} />
       <div className="panel-actions">
-        <p className="quiet">Voice isn't configured, so this conversation is typed.</p>
+        <p className="quiet">
+          {voiceConfigured
+            ? "This is a sample session, so the conversation is typed. Start over to use live voice."
+            : "Voice isn't configured, so this conversation is typed."}
+        </p>
         <Button
           variant="outline"
           onClick={() => onComplete({ transcript, seconds })}

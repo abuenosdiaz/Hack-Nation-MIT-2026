@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   buildPresenterSample,
   canVisit,
+  enableAdminMode,
   initialJourneyState,
+  STEPS,
   type JourneyState,
 } from "@/journey/state";
 
@@ -39,5 +41,30 @@ describe("step gating", () => {
     expect(sample.step).toBe("reflect");
     expect(canVisit(sample, "reflect")).toBe(true);
     expect(sample.transcript.some((t) => t.speaker === "student")).toBe(true);
+  });
+});
+
+describe("admin mode", () => {
+  it("unlocks every step without switching to sample mode", () => {
+    const admin = enableAdminMode(initialJourneyState);
+    expect(admin.adminMode).toBe(true);
+    expect(admin.sampleMode).toBe(false);
+    for (const step of STEPS) expect(canVisit(admin, step)).toBe(true);
+    expect(admin.transcript.length).toBeGreaterThan(0);
+  });
+
+  it("keeps what the student already wrote", () => {
+    const admin = enableAdminMode(
+      withState({
+        careerAreaId: "design",
+        preparedQuestions: [
+          { text: "My own question?", feedback: null },
+          { text: "", feedback: null },
+        ],
+      }),
+    );
+    expect(admin.careerAreaId).toBe("design");
+    expect(admin.preparedQuestions[0].text).toBe("My own question?");
+    expect(admin.preparedQuestions[1].text.length).toBeGreaterThan(0);
   });
 });

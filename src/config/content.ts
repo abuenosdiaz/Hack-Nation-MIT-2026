@@ -10,6 +10,31 @@ export const stages = [
   "Reflect",
 ] as const;
 
+// Sample editorial previews for the Content tab. Replace with real learning content later.
+export const contentPreviews = [
+  {
+    label: "The first hello",
+    title: "Starting a conversation",
+    line: "A genuine introduction is enough to begin.",
+    prompt: "What would you say first?",
+    kind: "START",
+  },
+  {
+    label: "Go a little deeper",
+    title: "Ask something open",
+    line: "Questions that begin with “how” invite a story.",
+    prompt: "What would you ask next?",
+    kind: "ASK",
+  },
+  {
+    label: "Stay curious",
+    title: "Follow the thread",
+    line: "Listen for one detail you want to know more about.",
+    prompt: "What did you notice?",
+    kind: "LISTEN",
+  },
+] as const;
+
 export const onboardingQuestions = [
   "Hi! I'm Sariel, your career conversation coach. To start, what are some things you're into lately — in or out of school?",
   "Nice. What activities, clubs, jobs, or hobbies take up your time?",
@@ -26,11 +51,18 @@ export const sampleOnboardingAnswers = [
 
 export type LessonContext = { careerArea: string; interests: string };
 
+export type LessonCheck = {
+  prompt: string;
+  options: { text: string; feedback: string; correct: boolean }[];
+};
+
 export type LessonCard = {
   title: string;
   body: string;
   tip?: string;
   examples?: (ctx: LessonContext) => string[];
+  /** Optional quick check; the student must pick the correct option to continue. */
+  check?: LessonCheck;
 };
 
 export const lessonCards: LessonCard[] = [
@@ -38,6 +70,26 @@ export const lessonCards: LessonCard[] = [
     title: "Why networking matters",
     body: "Networking just means having real conversations with people about what they do. Those conversations help you discover careers you didn't know existed, hear about opportunities, and build relationships that support you for years.",
     tip: "If you've ever asked a coach or relative how they got their job, you've already networked.",
+    check: {
+      prompt: "Which sounds most like networking?",
+      options: [
+        {
+          text: "Asking someone how they found their way into their work",
+          feedback: "Exactly. Curiosity starts a real conversation.",
+          correct: true,
+        },
+        {
+          text: "Trying to convince someone to give you a job",
+          feedback: "Not quite. You don't need to pitch yourself — try beginning with curiosity.",
+          correct: false,
+        },
+        {
+          text: "Collecting as many contacts as possible",
+          feedback: "Not quite. A thoughtful conversation matters more than a long contact list.",
+          correct: false,
+        },
+      ],
+    },
   },
   {
     title: "Introducing yourself",

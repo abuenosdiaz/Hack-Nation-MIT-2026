@@ -1,4 +1,4 @@
-import { initialsOf, type Professional } from "@/config/professionals";
+import { firstNameOf, type Professional } from "@/config/professionals";
 import { SectionLabel } from "./common";
 
 export function ProfessionalCard({ professional }: { professional: Professional }) {
@@ -6,9 +6,9 @@ export function ProfessionalCard({ professional }: { professional: Professional 
     <div className="single-panel fade-up">
       <SectionLabel>Fictional professional</SectionLabel>
       <div className="person-heading">
-        <span className="person-monogram">{initialsOf(professional.name)}</span>
+        <span className="person-monogram">{professional.name[0]}</span>
         <div>
-          <h2>{professional.name}</h2>
+          <h2>{firstNameOf(professional.name)}</h2>
           <p>{professional.role}</p>
         </div>
       </div>

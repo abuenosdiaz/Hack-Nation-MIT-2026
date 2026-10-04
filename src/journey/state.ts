@@ -13,12 +13,18 @@ import type {
 export const STEPS = ["welcome", "onboarding", "lesson", "prepare", "roleplay", "reflect"] as const;
 export type StepId = (typeof STEPS)[number];
 
+/** Side spaces shown instead of the current step; they never change journey progress. */
+export type View = "journey" | "content" | "messages";
+
 export type PreparedQuestion = { text: string; feedback: QuestionFeedback | null };
 
 export type JourneyState = {
   step: StepId;
+  view: View;
   /** True when presenter sample data was loaded instead of a real session. */
   sampleMode: boolean;
+  /** Admin mode: every step and check is unlocked; live AI and voice stay on. */
+  adminMode: boolean;
   /** Read coach and professional replies aloud with ElevenLabs. */
   voiceOver: boolean;
   onboardingChat: ChatMessage[];
@@ -41,7 +47,9 @@ const emptyQuestion = (): PreparedQuestion => ({ text: "", feedback: null });
 
 export const initialJourneyState: JourneyState = {
   step: "welcome",
+  view: "journey",
   sampleMode: false,
+  adminMode: false,
   voiceOver: true,
   onboardingChat: [],
   profile: null,
@@ -66,6 +74,7 @@ export const hasPreparedQuestions = (state: JourneyState): boolean =>
 
 /** Whether a step is reachable given what the student has completed so far. */
 export function canVisit(state: JourneyState, step: StepId): boolean {
+  if (state.adminMode) return true;
   switch (step) {
     case "welcome":
     case "onboarding":
@@ -116,6 +125,34 @@ export function buildPresenterSample(): JourneyState {
     ],
     transcript: pro.sampleTranscript,
     rolePlaySeconds: 200,
+    rolePlayComplete: true,
+  };
+}
+
+/**
+ * Admin shortcut: unlock every step without switching to sample mode, so live AI and
+ * voice keep working. Fills only what's missing with sample content so no step is empty.
+ */
+export function enableAdminMode(state: JourneyState): JourneyState {
+  const suggestion = state.suggestion ?? suggestCareerArea(sampleOnboardingAnswers);
+  const careerAreaId = state.careerAreaId ?? suggestion.careerAreaId;
+  const sample = buildPresenterSample();
+  return {
+    ...state,
+    adminMode: true,
+    sampleMode: false,
+    onboardingChat: state.onboardingChat.length ? state.onboardingChat : sampleOnboardingChat(),
+    profile: state.profile ?? sample.profile,
+    suggestion,
+    careerAreaId,
+    lessonComplete: true,
+    preparedQuestions: state.preparedQuestions.map((q, i) =>
+      q.text.trim() ? q : sample.preparedQuestions[i]!,
+    ) as JourneyState["preparedQuestions"],
+    transcript: state.transcript.length
+      ? state.transcript
+      : getProfessionalForArea(careerAreaId).sampleTranscript,
+    rolePlaySeconds: state.rolePlaySeconds || sample.rolePlaySeconds,
     rolePlayComplete: true,
   };
 }

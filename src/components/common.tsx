@@ -28,9 +28,9 @@ export const NextButton = ({
   onClick: () => void;
   disabled?: boolean;
 }) => (
-  <Button size="lg" onClick={onClick} disabled={disabled}>
+  <Button size="lg" className="next-step-button" onClick={onClick} disabled={disabled}>
     {children}
-    <ArrowRight size={16} />
+    <ArrowRight size={20} />
   </Button>
 );
 
@@ -38,15 +38,17 @@ export function StepView({
   label,
   title,
   lead,
+  className = "",
   children,
 }: {
   label: string;
   title: string;
   lead: string;
+  className?: string;
   children: ReactNode;
 }) {
   return (
-    <div className="focused-view fade-up">
+    <div className={`focused-view fade-up ${className}`}>
       <SectionLabel>{label}</SectionLabel>
       <h1>{title}</h1>
       <p className="lead">{lead}</p>

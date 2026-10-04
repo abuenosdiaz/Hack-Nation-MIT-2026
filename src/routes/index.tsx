@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type ComponentType } from "react";
-import { ArrowRight, Check, Menu, RotateCcw, X } from "lucide-react";
+import { ArrowRight, Check, LockKeyhole, Menu, Play, RotateCcw, X } from "lucide-react";
 import { getIntegrationStatus } from "@/api/status.functions";
+import { ContentSpace, MessagesSpace } from "@/components/ExploreSpaces";
 import { Button } from "@/components/ui/button";
 import { LessonStep } from "@/components/steps/LessonStep";
 import { OnboardingStep } from "@/components/steps/OnboardingStep";
@@ -11,7 +12,7 @@ import { RolePlayStep } from "@/components/steps/RolePlayStep";
 import { WelcomeStep } from "@/components/steps/WelcomeStep";
 import { appName, stages } from "@/config/content";
 import { JourneyProvider, useJourney } from "@/journey/JourneyProvider";
-import { canVisit, STEPS, type StepId } from "@/journey/state";
+import { canVisit, STEPS, type StepId, type View } from "@/journey/state";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -47,12 +48,24 @@ const STEP_COMPONENTS: Record<StepId, ComponentType> = {
 /** Navigable steps, paired with their sidebar labels (welcome isn't listed). */
 const NAV_STEPS = STEPS.slice(1).map((id, i) => ({ id, label: stages[i] ?? id }));
 
+/** Side spaces that sit beside the journey without changing its progress. */
+const SPACES: {
+  view: Exclude<View, "journey">;
+  label: string;
+  icon: ComponentType<{ size?: number }>;
+  screen: ComponentType;
+}[] = [
+  { view: "content", label: "Content", icon: Play, screen: ContentSpace },
+  { view: "messages", label: "Messages", icon: LockKeyhole, screen: MessagesSpace },
+];
+
 function App() {
-  const { state, goTo, reset, loadPresenterSample } = useJourney();
+  const { state, goTo, showView, reset, loadPresenterSample, toggleAdminMode } = useJourney();
   const [menuOpen, setMenuOpen] = useState(false);
-  const Screen = STEP_COMPONENTS[state.step];
+  const space = SPACES.find((s) => s.view === state.view);
+  const Screen = space?.screen ?? STEP_COMPONENTS[state.step];
   const currentIndex = STEPS.indexOf(state.step);
-  const currentLabel = NAV_STEPS.find((s) => s.id === state.step)?.label ?? "Start";
+  const currentLabel = space?.label ?? NAV_STEPS.find((s) => s.id === state.step)?.label ?? "Start";
 
   const navigate = (action: () => void) => {
     action();
@@ -89,7 +102,7 @@ function App() {
           <nav aria-label="Learning steps">
             <ol>
               {NAV_STEPS.map(({ id, label }, i) => {
-                const active = state.step === id;
+                const active = !space && state.step === id;
                 const completed = STEPS.indexOf(id) < currentIndex;
                 return (
                   <li key={id}>
@@ -111,12 +124,40 @@ function App() {
               })}
             </ol>
           </nav>
+          <div className="nav-extras">
+            <p className="nav-caption">YOUR SPACE</p>
+            <nav aria-label="Content and messages">
+              {SPACES.map(({ view, label, icon: Icon }) => {
+                const active = state.view === view;
+                return (
+                  <Button
+                    key={view}
+                    variant="ghost"
+                    className={`nav-item ${active ? "nav-active" : ""}`}
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => navigate(() => showView(view))}
+                  >
+                    <span className="nav-number">
+                      <Icon size={18} />
+                    </span>
+                    <span>{label}</span>
+                    {active && <span className="nav-active-mark" />}
+                  </Button>
+                );
+              })}
+            </nav>
+          </div>
         </div>
         <div className="nav-bottom">
           <div className="nav-divider" />
           <details className="demo-details">
             <summary>Presenter tools</summary>
             <div>
+              <Button variant="ghost" onClick={() => navigate(toggleAdminMode)}>
+                {state.adminMode
+                  ? "Turn off admin mode"
+                  : "Admin mode: unlock every step (live AI stays on)"}
+              </Button>
               <Button variant="ghost" onClick={() => navigate(loadPresenterSample)}>
                 Jump to reflection with a sample conversation
               </Button>
@@ -145,7 +186,12 @@ function App() {
           </div>
           <span className="current-location">{currentLabel}</span>
           <span className="session-badge">
-            <span /> {state.sampleMode ? "Sample session" : "Your session"}
+            <span />{" "}
+            {state.adminMode
+              ? "Admin session"
+              : state.sampleMode
+                ? "Sample session"
+                : "Your session"}
           </span>
         </header>
         <main className="workspace-main">

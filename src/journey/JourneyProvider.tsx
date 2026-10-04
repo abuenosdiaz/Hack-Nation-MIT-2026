@@ -7,7 +7,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { buildPresenterSample, initialJourneyState, type JourneyState, type StepId } from "./state";
+import {
+  buildPresenterSample,
+  enableAdminMode,
+  initialJourneyState,
+  type JourneyState,
+  type StepId,
+  type View,
+} from "./state";
 
 const STORAGE_KEY = "sariel-journey-v4";
 
@@ -15,8 +22,10 @@ type JourneyContextValue = {
   state: JourneyState;
   update: (patch: Partial<JourneyState>) => void;
   goTo: (step: StepId) => void;
+  showView: (view: View) => void;
   reset: () => void;
   loadPresenterSample: () => void;
+  toggleAdminMode: () => void;
 };
 
 const JourneyContext = createContext<JourneyContextValue | null>(null);
@@ -53,7 +62,12 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const goTo = useCallback((step: StepId) => {
-    setState((prev) => ({ ...prev, step }));
+    setState((prev) => ({ ...prev, step, view: "journey" }));
+    scrollToTop();
+  }, []);
+
+  const showView = useCallback((view: View) => {
+    setState((prev) => ({ ...prev, view }));
     scrollToTop();
   }, []);
 
@@ -67,9 +81,13 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
     scrollToTop();
   }, []);
 
+  const toggleAdminMode = useCallback(() => {
+    setState((prev) => (prev.adminMode ? { ...prev, adminMode: false } : enableAdminMode(prev)));
+  }, []);
+
   const value = useMemo(
-    () => ({ state, update, goTo, reset, loadPresenterSample }),
-    [state, update, goTo, reset, loadPresenterSample],
+    () => ({ state, update, goTo, showView, reset, loadPresenterSample, toggleAdminMode }),
+    [state, update, goTo, showView, reset, loadPresenterSample, toggleAdminMode],
   );
 
   return <JourneyContext.Provider value={value}>{children}</JourneyContext.Provider>;

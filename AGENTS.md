@@ -17,3 +17,6 @@
 - The coach runs through src/server/coach.server.ts, which picks the ElevenLabs text-only coach agent or an OpenAI-compatible API (COACH_PROVIDER). Without keys every step falls back to a clearly labeled sample mode.
 - The ElevenLabs SDK is browser-only; keep it behind the lazy imports in RolePlayStep and ChatPanel (MicButton).
 - Chat voice: MicButton streams mic audio to Scribe with a token from src/api/speech.functions.ts; voice-over audio comes from the /api/tts route (src/routes/api/tts.ts), which maps speakers to voices via src/config/voices.ts.
+- Content and Messages are side views (journey state `view`), not steps — switching to them must keep the student's current step and progress.
+- Lesson coaching opens beside the lesson card, not in place of it, so students keep their context while asking questions.
+- Practice professionals are examples to explore, not a career match: Prepare offers "Show me someone different", and the UI uses first names.

@@ -6,6 +6,7 @@ import { ChatPanel } from "@/components/ChatPanel";
 import { ErrorNote, FeedbackList, Notice, SectionLabel, StepView } from "@/components/common";
 import { askReflectionCoach, reviewConversation } from "@/api/coach.functions";
 import { sampleCoachReply } from "@/config/content";
+import { firstNameOf } from "@/config/professionals";
 import { formatClock } from "@/config/roleplay";
 import { buildSampleFeedback } from "@/domain/conversationFeedback";
 import type { ChatMessage, ConversationFeedback } from "@/domain/types";
@@ -89,7 +90,7 @@ export function ReflectStep() {
     <StepView
       label="05 / Reflect"
       title="Nice work — let's look back together."
-      lead={`You talked with ${professional.name} for ${formatClock(state.rolePlaySeconds)}. Here's what stood out, based on what you actually said.`}
+      lead={`You talked with ${firstNameOf(professional.name)} for ${formatClock(state.rolePlaySeconds)}. Here's what stood out, based on what you actually said.`}
     >
       <div className="single-panel fade-up">
         <SectionLabel>Coach feedback</SectionLabel>

@@ -219,6 +219,9 @@ export const getProfessionalForArea = (careerAreaId: string | null | undefined):
 export const getProfessional = (id: string | null | undefined): Professional =>
   professionals.find((p) => p.id === id) ?? professionals[0]!;
 
+/** Students meet practice people by first name. */
+export const firstNameOf = (name: string): string => name.split(" ")[0] ?? name;
+
 export const initialsOf = (name: string): string =>
   name
     .split(" ")
